@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #01aaa2;
+        }
+
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 100%;
+            background: #01aaa2;
+            color: #fff;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #userList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .userName {
+            display: block; /* Changed to block to make each name on a separate line */
+            background-color: #555;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 10px; /* Added margin-bottom */
+            text-decoration: none; /* Removed underline */
+        }
+
+        #messages {
+            position: fixed;
+            left: 220px; /* Adjusted for sidebar width */
+            top: 0;
+            width: calc(100% - 220px); /* Adjusted for sidebar width */
+            height: calc(100% - 50px);
+            background: #1a1a1a; /* Changed background color */
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #sendMsg {
+            position: fixed;
+            left: 220px; /* Adjusted for sidebar width */
+            bottom: 0;
+            width: calc(100% - 220px); /* Adjusted for sidebar width */
+            height: 50px;
+            background: #AAA;
+            display: flex; /* Added */
+            align-items: center; /* Added */
+            padding: 0 10px; /* Updated */
+        }
+
+        #msgTxt {
+            flex: 1; /* Updated */
+            height: 100%;
+            padding-left: 10px;
+            box-sizing: border-box;
+        }
+
+        #msgBtn {
+            width: 100px;
+            height: 100%;
+            margin-left: 10px; /* Added */
+        }
+
+        .outer {
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+        }
+
+        #inner {
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+
+        .me {
+            background: #8800FF;
+            color: #fff;
+        }
+
+        .notMe {
+            background: #007acc; /* Changed background color */
+            color: #fff; /* Changed text color */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar" style="position: fixed; left: 0; top: 0; width: 200px; height: 100%; background: #01aaa2; color: #fff; overflow-y: auto; padding: 10px; box-sizing: border-box;">
+        <h2 style="color: #fff;">Users</h2>
+        <ul id="userList" style="list-style: none; padding: 0; margin: 0;">
+            <li style="background-color: #555; margin-bottom: 10px; border-radius: 5px;">
+                <a href="chat1.html" style="display: block; color: #fff; padding: 5px 10px; text-decoration: none;">Yavuzhan</a>
+            </li>
+            <li style="background-color: #555; margin-bottom: 10px; border-radius: 5px;">
+                <a href="chat2.html" style="display: block; color: #fff; padding: 5px 10px; text-decoration: none;">Burak</a>
+            </li>
+            <li style="background-color: #555; margin-bottom: 10px; border-radius: 5px;">
+                <a href="chat3.html" style="display: block; color: #fff; padding: 5px 10px; text-decoration: none;">Bora</a>
+            </li>
+            <li style="background-color: #555; margin-bottom: 10px; border-radius: 5px;">
+                <a href="chat4.html" style="display: block; color: #fff; padding: 5px 10px; text-decoration: none;">Kagan</a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="messages" style="position: fixed; left: 220px; top: 0; width: calc(100% - 220px); height: calc(100% - 50px); background: #1a1a1a; overflow-y: auto; padding: 10px; box-sizing: border-box;"></div>
+
+    <div id="sendMsg" style="position: fixed; left: 220px; bottom: 0; width: calc(100% - 220px); height: 50px; background: #AAA; display: flex; align-items: center; padding: 0 10px;">
+        <input type="text" id="msgTxt" placeholder="ENTER YOUR MSG..." style="flex: 1; height: 100%; padding-left: 10px; box-sizing: border-box;">
+        <input type="submit" id="msgBtn" value="send" onclick="module.sendMsg()" style="width: 100px; height: 100%; margin-left: 10px;">
+    </div>
+    <script>
+        module = {};
+    </script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDH-Zj2WEM1-tnGZRIjdDXjogWTpZN2LmE",
+            authDomain: "bos123-d6ee9.firebaseapp.com",
+            projectId: "bos123-d6ee9",
+            storageBucket: "bos123-d6ee9.appspot.com",
+            messagingSenderId: "282999263917",
+            appId: "1:282999263917:web:c2996437608fa28fe62c24"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // variables
+        var msgTxt = document.getElementById('msgTxt');
+        var sender;
+        if (sessionStorage.getItem('sender')) {
+            sender = sessionStorage.getItem('sender');
+        } else {
+            sender = prompt('PLEASE ENTER YOUR NAME');
+            sessionStorage.setItem('sender', sender);
+        }
+
+        // TO SEND MESSAGES
+        module.sendMsg = function sendMsg() {
+            var msg = msgTxt.value;
+            var timestamp = new Date().getTime();
+            set(ref(db, "messages/" + timestamp), {
+                msg: msg,
+                sender: sender
+            })
+
+            msgTxt.value = "";
+        }
+
+        // TO RECEIVE MSG
+        onChildAdded(ref(db, "messages"), (data) => {
+            if (data.val().sender == sender) {
+                messages.innerHTML += "<div style=justify-content:end class=outer id=" + data.key + "><div id=inner class=me>you : " + data.val().msg + "<button id=dltMsg onclick=module.dltMsg(" + data.key + ")>DELETE</button></div></div>";
+            } else {
+                messages.innerHTML += "<div class=outer id=" + data.key + "><div id=inner class=notMe>" + data.val().sender + " : " + data.val().msg + "</div></div>";
+            }
+        })
+
+        // TO DELETE MSG
+        module.dltMsg = function dltMsg(key) {
+            remove(ref(db, "messages/" + key));
+        }
+
+        // WHEN MSG IS DELETED
+        onChildRemoved(ref(db, "messages"), (data) => {
+            var msgBox = document.getElementById(data.key);
+            messages.removeChild(msgBox);
+        })
+    </script>
+</body>
+
+</html>

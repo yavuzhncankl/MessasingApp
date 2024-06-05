@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #01aaa2;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Sayfa konumunu belirtmek için */
+            min-height: 100vh; /* Minimum yükseklik ayarı */
+        }
+
+        #container {
+            flex: 1;
+            display: flex;
+            flex-direction: column; /* Dikey yönde düzenleme */
+            transition: margin-left 0.3s ease; /* Geçiş efekti eklendi */
+        }
+
+        #sidebar {
+            width: 200px; /* Genişlik azaltıldı */
+            height: calc(100% - 50px); /* Sayfanın yüksekliğinden giriş kutusunun yüksekliği çıkarılarak hesaplanır */
+            background: #01aaa2;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+            position: absolute; /* Sayfanın en altında sabitlenmek için */
+            bottom: 50px; /* Giriş kutusunun üstünde başlatmak için */
+            left: 0; /* Sayfanın solunda başlatmak için */
+            transition: left 0.3s ease; /* Geçiş efekti eklendi */
+        }
+
+        .userBox {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 5px;
+            color: #000; /* Kullanıcı adlarını siyah yap */
+            text-transform: uppercase; /* Kullanıcı adlarını büyük harflerle yazdır */
+        }
+
+        #userList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #messages {
+            flex: 1;
+            width: calc(100% - 200px); /* Mesaj alanının genişliği ayarlandı */
+            background: #000;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-left: 200px; /* Mesaj alanı sola itildi */
+            transition: margin-left 0.3s ease; /* Geçiş efekti eklendi */
+        }
+
+        #inputContainer {
+            width: calc(100% - 200px); /* Giriş kutusunun genişliği ayarlandı */
+            height: 50px;
+            background: #333;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+            position: absolute;
+            bottom: 0;
+            left: 200px; /* Giriş kutusu sola itildi */
+            transition: left 0.3s ease; /* Geçiş efekti eklendi */
+        }
+
+        #msgTxt {
+            flex: 1;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            color: #000;
+            background: #fff;
+        }
+
+        #sendBtn {
+            width: 100px;
+            height: 100%;
+            border: none;
+            background: #AAA;
+            color: #000;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #333;
+        }
+
+        .message.sent {
+            background: #555;
+            align-self: flex-end;
+        }
+
+        .message.received {
+            background: #777;
+            align-self: flex-start;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <h2>Users</h2>
+            <ul id="userList">
+                <li class="userBox"><a href="index.html">MEHMET</a></li>
+                <li class="userBox"><a href="chat2.html">YAVUZHAN</a></li>
+                <li class="userBox"><a href="chat3.html">BORA</a></li>
+                <li class="userBox"><a href="chat1.html">BURAK</a></li>
+                <!-- Add more users here -->
+            </ul>
+        </div>
+        <div id="messages"></div>
+    </div>
+    <div id="inputContainer">
+        <input type="text" id="msgTxt" placeholder="Enter your message...">
+        <button id="sendBtn">Send</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userList = document.getElementById('userList');
+            const messageList = document.getElementById('messages');
+            const input = document.getElementById('msgTxt');
+            const sendBtn = document.getElementById('sendBtn');
+            const fakeMessages = [
+                "Hi!",
+                "Fine and you?",
+                "What are you up to?",
+                "I'm fine, thanks!",
+                "Let's go out tonight!",
+                "Sure, where do you want to go?",
+                "How about a movie?",
+                "Sounds good!",
+                "See you at 7!",
+                "See you then!"
+            ];
+            let messageIndex = 0;
+
+            sendBtn.addEventListener('click', sendMessage);
+
+            function sendMessage() {
+                const message = input.value.trim();
+                if (message !== '') {
+                    displayMessage('You', message, 'sent');
+                    input.value = '';
+                    sendNextMessage();
+                }
+            }
+
+            function sendNextMessage() {
+                if (messageIndex < fakeMessages.length) {
+                    displayMessage('Friend', fakeMessages[messageIndex], 'received');
+                    messageIndex++;
+                }
+            }
+
+            function displayMessage(sender, message, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = sender + ': ' + message;
+                messageDiv.classList.add('message', type);
+                messageDiv.style.width = message.length * 10 + 'px'; // Mesaj uzunluğuna göre genişlik ayarı
+                messageList.insertBefore(messageDiv, messageList.firstChild); // Mesajı en üstte ekler
+                messageList.scrollTop = 0; // En üste scroll et
+            }
+        });
+    </script>
+</body>
+
+</html>
